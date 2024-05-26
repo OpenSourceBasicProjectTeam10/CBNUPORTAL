@@ -1,3 +1,4 @@
 *.css linguist-detectable=false
 # *.js linguist-detectable=false
 *.html linguist-detectable=false
+“g6” filter=lfs diff=lfs merge=lfs -text
