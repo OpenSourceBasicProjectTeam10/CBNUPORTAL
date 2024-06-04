@@ -90,6 +90,7 @@
                         {% endif %}
                     </li>
 
+					<!--
                     {% if config.cf_use_homepage %}
                     <li>
                         <label for="reg_mb_homepage" class="blind">홈페이지{% if config.cf_req_homepage %} (필수){% endif %}</label>
@@ -101,25 +102,52 @@
                                placeholder="홈페이지{% if config.cf_req_homepage %} (필수){% endif %}">
                     </li>
                     {% endif %}
-                    <li>
-                        <label for="reg_mb_tel" class="blind">전화번호 (필수)</label>
-                        <input type="text" name="mb_tel" value="{{ member.mb_tel|default('', true) }}" id="reg_mb_tel"
+					-->
+                   <li>
+						<label for="reg_mb_tel" class="blind">휴대전화 (필수)</label>
+						<input type="text" name="mb_tel" value="{{ member.mb_tel|default('', true) }}" id="reg_mb_tel"
+							class="frm_input full_input required"
+							maxlength="13"
+							required
+							placeholder="전화번호"
+							oninput="formatPhoneNumber(event)">
+					</li>
+					<script>
+						function formatPhoneNumber(event) {
+							const input = event.target;
+							let value = input.value.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
+							if (value.length > 3) {
+								value = value.slice(0, 3) + '-' + value.slice(3);
+							}
+							if (value.length > 8) {
+								value = value.slice(0, 8) + '-' + value.slice(8, 12);
+							}
+							input.value = value;
+						}
+					</script>
+					
+					
+					<li>
+                        <label for="reg_mb1 class="blind">학과 (필수)</label>
+                        <input type="text" name="mb1" value="{{ member.mb_department|default('', true) }}" id="reg_mb1"
                             class="frm_input full_input required"
                             maxlength="20"
                             required
-                            placeholder="전화번호">
+                            placeholder="학과">
                     </li>
 
+
+					<!--
                     <li>
                         <label for="reg_mb_hp" class="blind">휴대폰번호 (필수)</label>
                         <input type="text" name="mb_hp"
                             id="reg_mb_hp"
                             value="{{ member.mb_hp|default('', true) }}"
-                            class="frm_input full_input required"
+                            class="frm_input full_input"
                             maxlength="20"
-                            required
                             placeholder="휴대폰번호">
                     </li>
+					-->
                 </ul>
             </div>
                     
@@ -171,6 +199,7 @@
                     </li>
                 </ul>
             </div>
+			<!--
             <div class="register_form_inner">
                 <h2>추가 정보 입력</h2>
                 <ul>
@@ -186,10 +215,13 @@
                     </li>
                 </ul>
             </div>
+			-->
         </div>
         <div class="btn_confirm">
             <input type="submit" value="확인" id="btn_submit" class="btn_submit">
+			<!--
             <a href="{{ return_url }}" class="btn_cancel">취소</a>
+			-->
         </div>
     </form>
 </div>

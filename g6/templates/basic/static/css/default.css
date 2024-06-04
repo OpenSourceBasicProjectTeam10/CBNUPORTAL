@@ -955,7 +955,7 @@ button { cursor:pointer; padding:0; font-size:inherit; }
 .register_form_inner label {display:block;margin-bottom:0px;}
 .register_form_inner label.inline {display:inline}
 .register_form_inner .frm_input {padding: 5px 0px;border: none;border-bottom: 1px solid #d0d3db;border-radius: 0px;background: transparent;}
-.register_form_inner label.text_input {position:absolute;left:0%; bottom:50%; width:100%; line-height: 45px; text-align:left;transition: all 0.2s;cursor: pointer;color: var(--bovColor);}
+.register_form_inner label.text_input {position:absolute;left:0%; bottom:50%; width:100%; text-align:left;transition: all 0.2s;cursor: pointer;color: var(--bovColor);}
 .register_form_inner .frm_input:focus,
 .register_form_inner .frm_input:-webkit-autofill {border:0 !important;border-bottom: 2px solid var(--primaryColor) !important;box-shadow: none;}
 .register_form_inner .frm_input:placeholder-shown {border-bottom: 1px solid #d0d3db}
