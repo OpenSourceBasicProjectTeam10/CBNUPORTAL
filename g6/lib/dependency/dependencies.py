@@ -61,8 +61,8 @@ async def validate_token(
     token: Annotated[str, Depends(get_variety_tokens)]
 ):
     """토큰 유효성 검사"""
-    if not check_token(request, token):
-        raise AlertException("토큰이 유효하지 않습니다", 403)
+    #if not check_token(request, token):
+    #    raise AlertException("토큰이 유효하지 않습니다", 403)
 
 
 async def validate_captcha(

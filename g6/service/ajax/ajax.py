@@ -43,7 +43,7 @@ class AJAXService:
     def validate_token(self, token: str):
         """토큰 검증"""
         if not check_token(self.request, token):
-            raise JSONException(status_code=403, message="토큰이 유효하지 않습니다.")
+            raise JSONException(status_code=403, message="1토큰이 유효하지 않습니다.")
 
     def get_board(self, bo_table: str) -> Board:
         """게시판 존재여부 확인"""
