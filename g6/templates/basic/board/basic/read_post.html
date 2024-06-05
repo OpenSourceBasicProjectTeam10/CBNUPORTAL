@@ -25,6 +25,8 @@
         {% endif %}
         {{ write.wr_subject|truncate(250, False, '...', 0) }}
     </h2>
+	
+	
 
     <div id="view_header">
         <h2 class="blind">페이지 정보</h2>
@@ -63,6 +65,17 @@
             </div>
 
         </div>
+		
+		
+		<div>
+			<!--인원-->
+			인원 : <div class="table_datetime">{{ write.wr_1 }} / {{ write.wr_2 }}</div>
+			<br>
+			<!--마감일-->
+			마감일 : <div class="table_wr_3">{{ write.wr_3 }}</div>
+		</div>
+		
+		
 
         <ul class="view_buttons">
             <li>
