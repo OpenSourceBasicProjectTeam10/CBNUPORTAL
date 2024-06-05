@@ -11,6 +11,11 @@
     {{ editor.head() }}
     <link rel="stylesheet" href="{{ theme_asset(request, 'css/board_common.css?ver=1.0.0') }}">
     <link rel="stylesheet" href="{{ theme_asset(request, 'css/board_skin_basic.css?ver=1.0.0') }}">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-ui-timepicker-addon@1.6.3/dist/jquery-ui-timepicker-addon.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-ui-timepicker-addon@1.6.3/dist/jquery-ui-timepicker-addon.min.js"></script>
 {% endblock head %}
 
 {% block title %}{{ board.subject }} 글{{ action }}{% endblock title %}
@@ -113,6 +118,30 @@
 
             {% endif %}
         </div>
+
+<!-- 인원수 및 만기일 필드를 한 줄에 배치하는 코드 -->
+<div class="write_numbers">
+    <div class="write_number">
+        <label for="wr_number_needed" class="blind">필요한 사람 수<strong>필수</strong></label>
+        <span>필요한 사람 수:</span>
+        <button type="button" id="decrease_number_needed" class="btn_number">-</button>
+        <input type="number" name="wr_number_needed" id="wr_number_needed" value="0" min="0" class="frm_input number_input" required>
+        <button type="button" id="increase_number_needed" class="btn_number">+</button>
+    </div>
+    <div class="write_number">
+        <label for="wr_number_total" class="blind">총 인원수<strong>필수</strong></label>
+        <span>총 인원수:</span>
+        <button type="button" id="decrease_number_total" class="btn_number">-</button>
+        <input type="number" name="wr_number_total" id="wr_number_total" value="0" min="0" class="frm_input number_input" required>
+        <button type="button" id="increase_number_total" class="btn_number">+</button>
+    </div>
+    <!-- 만기일 필드 추가 -->
+    <div class="write_expiry">
+        <label for="wr_expiry" class="blind">만기일<strong>필수</strong></label>
+        <input type="text" name="wr_expiry" id="wr_expiry" class="frm_input datetime_input" placeholder="만기일을 선택하세요" required>
+    </div>
+</div>
+
 
         <!-- TODO: editor.body 영역 HTML 수정 필요 -->
         <div>
@@ -233,6 +262,56 @@
 
         return true;
     }
+
+    // 인원수 증감 버튼 이벤트 처리
+    document.getElementById('decrease_number_needed').addEventListener('click', function() {
+        var numberField = document.getElementById('wr_number_needed');
+        var currentValue = parseInt(numberField.value);
+        if (currentValue > 0) {
+            numberField.value = currentValue - 1;
+        }
+    });
+
+    document.getElementById('increase_number_needed').addEventListener('click', function() {
+        var numberField = document.getElementById('wr_number_needed');
+        numberField.value = parseInt(numberField.value) + 1;
+    });
+
+    document.getElementById('wr_number_needed').addEventListener('input', function() {
+        var numberField = document.getElementById('wr_number_needed');
+        if (numberField.value < 0) {
+            numberField.value = 0;
+        }
+    });
+
+    document.getElementById('decrease_number_total').addEventListener('click', function() {
+        var numberField = document.getElementById('wr_number_total');
+        var currentValue = parseInt(numberField.value);
+        if (currentValue > 0) {
+            numberField.value = currentValue - 1;
+        }
+    });
+
+    document.getElementById('increase_number_total').addEventListener('click', function() {
+        var numberField = document.getElementById('wr_number_total');
+        numberField.value = parseInt(numberField.value) + 1;
+    });
+
+    document.getElementById('wr_number_total').addEventListener('input', function() {
+        var numberField = document.getElementById('wr_number_total');
+        if (numberField.value < 0) {
+            numberField.value = 0;
+        }
+    });
+
+    // 달력 초기화
+    $(function() {
+        $("#wr_expiry").datetimepicker({
+            dateFormat: "yy-mm-dd",
+            timeFormat: "HH:mm",
+            minDate: 0 // 현재 날짜 이후만 선택 가능
+        });
+    });
     </script>
 
 </div>
