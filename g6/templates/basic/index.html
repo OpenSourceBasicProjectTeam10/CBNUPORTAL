@@ -5,24 +5,145 @@
 {% block content %}
     <h2 class="blind">최신글</h2>
 
+    <div class="schedule_calendar">
+        <!-- 달력 -->
+        <div id="calendar" class="calendar"></div>
+    </div>
+
+    <!-- 일정 관리 입력 모달 -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="schedule-form" action="/schedule/add" method="post">
+                <label for="schedule_title">일정 제목:</label>
+                <input type="text" id="schedule_title" name="schedule_title" required>
+                <label for="schedule_start">시작 날짜 및 시간:</label>
+                <input type="datetime-local" id="schedule_start" name="schedule_start" required>
+                <label for="schedule_end">종료 날짜 및 시간:</label>
+                <input type="datetime-local" id="schedule_end" name="schedule_end">
+                <button type="submit">일정 추가</button>
+            </form>
+        </div>
+    </div>
+
     <!-- FullCalendar 라이브러리 추가 -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/main.min.css' rel='stylesheet' />
+
+    <!-- 모달 스타일 -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
 
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                editable: true,
+                selectable: true,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                events: [
+                    // 예제 일정 데이터
+                    { title: 'Sample Event', start: '2024-06-10T10:00:00', end: '2024-06-10T12:00:00' }
+                ],
+                select: function(info) {
+                    document.getElementById('schedule_start').value = info.startStr;
+                    document.getElementById('schedule_end').value = info.endStr;
+
+                    var modal = document.getElementById('scheduleModal');
+                    modal.style.display = "block";
+                },
+                eventClick: function(info) {
+                    if (confirm("이 일정을 삭제하시겠습니까?")) {
+                        info.event.remove();
+                    }
+                },
+                eventDrop: function(info) {
+                    alert(info.event.title + " was dropped on " + info.event.start.toISOString());
+                },
+                eventResize: function(info) {
+                    alert(info.event.title + " end is now " + info.event.end.toISOString());
+                }
+            });
+
+            calendar.render();
+
+            var modal = document.getElementById('scheduleModal');
+            var span = document.getElementsByClassName("close")[0];
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            document.getElementById('schedule-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var title = document.getElementById('schedule_title').value;
+                var start = document.getElementById('schedule_start').value;
+                var end = document.getElementById('schedule_end').value;
+
+                if (title && start) {
+                    calendar.addEvent({
+                        title: title,
+                        start: start,
+                        end: end || start
+                    });
+
+                    modal.style.display = "none";
+
+                    // Clear the form after adding the event
+                    document.getElementById('schedule_title').value = '';
+                    document.getElementById('schedule_start').value = '';
+                    document.getElementById('schedule_end').value = '';
+                }
+            });
         });
-        calendar.render();
-      });
-
     </script>
-
-    <body>
-        <div id='calendar'></div>
-      </body>
-
 
     <div class="latest_wr">
         {% for board in boards %}
