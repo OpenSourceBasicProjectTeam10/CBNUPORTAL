@@ -7,14 +7,7 @@
     <div class="latest_top_wr">
       {{ render_latest_posts(request, 'main_list', 'notice', 4, 23)|safe }}
     </div>
-    <div class="latest_wr">
-        {{ render_latest_posts(request, 'pic_list', 'free', 4, 23)|safe }}
-        {{ render_latest_posts(request, 'pic_list', 'qa', 4, 23)|safe }}
-        {{ render_latest_posts(request, 'pic_list', 'notice', 4, 23)|safe }}
-    </div>
-    <div class="latest_wr">
-        {{ render_latest_posts(request, 'pic_block', 'gallery', 4, 23)|safe }}
-    </div>
+    
     <div class="latest_wr">
         {% for board in boards %}
         <div style="float:left; {{ loop.cycle("", "margin-left:2%", "margin-left:2%") }}" class="lt_wr">
