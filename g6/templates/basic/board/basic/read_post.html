@@ -242,6 +242,36 @@
         </div>
     </div>
 
+    <script>
+        $(document).ready(function() {
+            $('#join-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/get_team_members',
+                    success: function(data) {
+                        if(data.error) {
+                            alert(data.error);
+                            return;
+                        }
+
+                        var teamList = $('#team-members');
+                        teamList.empty();
+
+                        data.forEach(function(member) {
+                            var listItem = $('<li>').text(member.name + ' - ' + member.phone + ' - ' + member.department);
+                            teamList.append(listItem);
+                        });
+
+                        $('#team-members-list').show();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Failed to fetch team members: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
+
     {% if files %}
     <div id="view_file" class="view_filelink">
         <h2 class="blind">첨부파일</h2>
