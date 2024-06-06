@@ -1,4 +1,4 @@
-plugin Name: 플러그인 베이직
+plugin Name: 현재 날씨
 plugin URI: gnuboard.com
 Maker: GNUBOARD
 Maker URI: gnuboard.com

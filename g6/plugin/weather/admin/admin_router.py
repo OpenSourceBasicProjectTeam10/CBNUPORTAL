@@ -27,29 +27,15 @@ templates.env.globals["get_all_plugin_module_names"] = get_all_plugin_module_nam
 
 admin_router = APIRouter(prefix=admin_router_prefix, tags=['demo_admin'])
 
-
-@admin_router.get("/weather_admin")
+@admin_router.get("/usage")
 async def show(request: Request):
     request.session["menu_key"] = module_name
     request.session["plugin_submenu_key"] = module_name + "1"
 
-    return {
-        "message": "Hello Weather Plugin!",
-        "pacakge": __package__,
-        "__file__": __file__,
-        "__name__": __name__,
-    }
-
-
-@admin_router.get("/weather_admin_template")
-async def show(request: Request):
-    request.session["menu_key"] = module_name
-    request.session["plugin_submenu_key"] = module_name + "2"
-
     context = {
         "request": request,
-        "title": "Hello Weather Plugin!",
+        "title": "현재 날씨 사용법",
         "content": f"Hello {module_name}",
         "module_name": module_name,
     }
-    return templates.TemplateResponse(f"{plugin_config.TEMPLATE_PATH}/admin/admin_demo.html", context)
+    return templates.TemplateResponse(f"{plugin_config.TEMPLATE_PATH}/admin/usage.html", context)
