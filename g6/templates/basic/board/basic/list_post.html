@@ -120,11 +120,14 @@
 					
 					
 					
-					<?php
-					$Site_URL = $PHP_SELF; //현재 주소
-					?>
+
+				
 					
-					<?php if($Site_URL!="/free"){?>
+					<?php
+					$Site_URL = $_SERVER['REQUEST_URI']; // 현재 페이지의 주소를 가져옴
+					?>
+										
+					<?php if ($Site_URL !== "/board/free" && $Site_URL !== "/board/hobby") { ?>
 						<th scope="col" style="width:30px;">학과</th>
 						<th scope="col" style="width:30px;">인원</th>
 						<th scope="col" style="width:80px;"><a href="{{ request.url.include_query_params(sst="wr_3", sod=sod_reverse) }}">마감일</a></th>
