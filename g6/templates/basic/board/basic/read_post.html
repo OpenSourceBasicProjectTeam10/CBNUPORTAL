@@ -83,20 +83,7 @@
                     <i class="fa fa-list" aria-hidden="true"></i><span class="blind">목록</span>
                 </a>
             </li>
-            {% if is_reply %}
-            <li>
-                <a href="{{ url_for('write_form_add', bo_table=board.bo_table)|set_query_params(request, parent_id=write.wr_id) }}" class="btn_b01 btn" title="답변">
-                    <i class="fa fa-reply" aria-hidden="true"></i><span class="blind">답변</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if is_write %}
-            <li>
-                <a href="{{ url_for('write_form_add', bo_table=board.bo_table)|set_query_params(request) }}" class="btn_b01 btn" title="글쓰기">
-                    <i class="fa fa-pencil" aria-hidden="true"></i><span class="blind">글쓰기</span>
-                </a>
-            </li>
-            {% endif %}
+           
             {% if is_admin or write.mb_id == login_member.mb_id or not write.mb_id %}
             <li class="buttons_more">
                 <button type="button" class="more_opener btn_b01 btn">
