@@ -128,12 +128,8 @@
 					
 					
 					<li>
-                        <label for="reg_mb1 class="blind">학과 (필수)</label>
-                        <input type="text" name="mb1" value="{{ member.mb_department|default('', true) }}" id="reg_mb1"
-                            class="frm_input full_input required"
-                            maxlength="20"
-                            required
-                            placeholder="학과">
+                        <label for="mb1 class="blind">학과 (필수)</label>
+						 <input type="text" name="mb_1" id="mb_1" value="{{ member.mb_1|default('', true) }}" class="frm_input full_input required" required placeholder="학과">
                     </li>
 
 

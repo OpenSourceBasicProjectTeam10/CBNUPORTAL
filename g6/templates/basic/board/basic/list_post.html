@@ -117,9 +117,19 @@
                     <th scope="col">분류</th>
                     {% endif %}
                     <th scope="col">제목</th>
-                    <th scope="col" style="width:30px;">글쓴이</th>
-					<th scope="col" style="width:30px;">인원</th>
-					<th scope="col" style="width:80px;"><a href="{{ request.url.include_query_params(sst="wr_3", sod=sod_reverse) }}">마감일</a></th>
+					
+					
+					
+					<?php
+					$Site_URL = $PHP_SELF; //현재 주소
+					?>
+					
+					<?php if($Site_URL!="/free"){?>
+						<th scope="col" style="width:30px;">학과</th>
+						<th scope="col" style="width:30px;">인원</th>
+						<th scope="col" style="width:80px;"><a href="{{ request.url.include_query_params(sst="wr_3", sod=sod_reverse) }}">마감일</a></th>
+					<?php }?>
+					
 					
                     <th scope="col" style="width:30px;"><a href="{{ request.url.include_query_params(sst="wr_hit", sod=sod_reverse) }}">조회</a></th>
                     {% if board.bo_use_good %}
@@ -263,6 +273,8 @@
                         <span class="blind">링크있음</span>
                         {% endif %}
                     </td>
+					
+					<!--
                     <td class="table_writer">
                         {% if board.bo_use_sideview %}
                             {{ sideview.get(request, write.mb_id, write.name, write.wr_email, write.wr_homepage)|safe }}
@@ -272,6 +284,7 @@
                             </span>
                         {% endif %}
                     </td>
+					-->
                     
                     {% if board.bo_use_good %}
                     <td class="table_good" data-label="추천">{{ write.wr_good|number_format }}</td>
@@ -279,6 +292,10 @@
                     {% if board.bo_use_nogood %}
                     <td class="table_nogood" data-label="비추">{{ write.wr_nogood|number_format }}</td>
                     {% endif %}
+					
+					
+					<!--학과-->
+					<td class="table_writer">{{ write.mb_1 }}</td>
 					
 					<!--인원-->
 					<td class="table_datetime">{{ write.wr_1 }} / {{ write.wr_2 }}</td>
