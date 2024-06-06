@@ -165,10 +165,19 @@
             </a>
         {% endfor %}
         </div>
+		
+		
+		
+		
+		
 
         <div id="article_contents" class="{{ request.state.editor }}">
             {{ write.wr_content|set_image_width(board_config.image_width)|url_auto_link(request)|safe }}
         </div>
+		
+		
+			
+			
 
         {{ board_config.get_member_signature(write.mb_id) }}
 
@@ -198,6 +207,70 @@
         {% endif %}
 
     </div>
+	
+	
+    <style>
+        .join-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+			margin:20px 0 60px 0;
+        }
+
+        .join-button {
+            width: 120px;
+            padding: 15px 25px;
+            background-color: #4D57E3;
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .join-button:hover {
+            background-color: #3c46b5;
+        }
+    </style>
+	
+	<div class="join-container">
+        <div class="join-button">
+            {{ write.wr_1 }} / {{ write.wr_2 }}
+            <br>
+            참가하기
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#join-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/get_team_members',
+                    success: function(data) {
+                        if(data.error) {
+                            alert(data.error);
+                            return;
+                        }
+
+                        var teamList = $('#team-members');
+                        teamList.empty();
+
+                        data.forEach(function(member) {
+                            var listItem = $('<li>').text(member.name + ' - ' + member.phone + ' - ' + member.department);
+                            teamList.append(listItem);
+                        });
+
+                        $('#team-members-list').show();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Failed to fetch team members: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
 
     {% if files %}
     <div id="view_file" class="view_filelink">

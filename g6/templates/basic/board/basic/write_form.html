@@ -119,28 +119,36 @@
             {% endif %}
         </div>
 
-<!-- 인원수 및 만기일 필드를 한 줄에 배치하는 코드 -->
-<div class="write_numbers">
-    <div class="write_number">
-        <label for="wr_number_needed" class="blind">현재 모집된 인원:<strong>필수</strong></label>
-        <span>현재 모집된 인원:</span>
-        <button type="button" id="decrease_number_needed" class="btn_number">-</button>
-        <input type="number" name="wr_number_needed" id="wr_number_needed" value="0" min="0" class="frm_input number_input" required>
-        <button type="button" id="increase_number_needed" class="btn_number">+</button>
-    </div>
-    <div class="write_number">
-        <label for="wr_number_total" class="blind">총 인원수<strong>필수</strong></label>
-        <span>총 인원수:</span>
-        <button type="button" id="decrease_number_total" class="btn_number">-</button>
-        <input type="number" name="wr_number_total" id="wr_number_total" value="0" min="0" class="frm_input number_input" required>
-        <button type="button" id="increase_number_total" class="btn_number">+</button>
-    </div>
-    <!-- 만기일 필드 추가 -->
-    <div class="write_expiry">
-        <label for="wr_expiry" class="blind">만기일<strong>필수</strong></label>
-        <input type="text" name="wr_expiry" id="wr_expiry" class="frm_input datetime_input" placeholder="만기일을 선택하세요" required>
-    </div>
-</div>
+
+
+		<!-- 인원수 및 만기일 필드를 한 줄에 배치하는 코드 -->
+		<div class="write_numbers">
+			<!-- 학과 필드 추가 -->
+			<div class="department">
+				<label for="mb_1" class="blind">학과<strong>필수</strong></label>
+				<input type="text" name="mb_1" id="mb_1" class="frm_input" placeholder="학과를 입력해주세요" required>
+			</div>
+			
+			<div class="write_number">
+				<label for="wr_1" class="blind">현재 모집된 인원:<strong>필수</strong></label>
+				<span>현재 모집된 인원:</span>
+				<button type="button" id="decrease_number_needed" class="btn_number">-</button>
+				<input type="number" name="wr_1" id="wr_1" value="0" min="0" class="frm_input number_input" required>
+				<button type="button" id="increase_number_needed" class="btn_number">+</button>
+			</div>
+			<div class="write_number">
+				<label for="wr_2" class="blind">총 인원수<strong>필수</strong></label>
+				<span>총 인원수:</span>
+				<button type="button" id="decrease_number_total" class="btn_number">-</button>
+				<input type="number" name="wr_2" id="wr_2" value="0" min="0" class="frm_input number_input" required>
+				<button type="button" id="increase_number_total" class="btn_number">+</button>
+			</div>
+			<!-- 만기일 필드 추가 -->
+			<div class="write_expiry">
+				<label for="wr_3" class="blind">만기일<strong>필수</strong></label>
+				<input type="text" name="wr_3" id="wr_3" class="frm_input datetime_input" placeholder="만기일을 선택하세요" required>
+			</div>
+		</div>
 
 
         <!-- TODO: editor.body 영역 HTML 수정 필요 -->
@@ -265,7 +273,7 @@
 
     // 인원수 증감 버튼 이벤트 처리
     document.getElementById('decrease_number_needed').addEventListener('click', function() {
-        var numberField = document.getElementById('wr_number_needed');
+        var numberField = document.getElementById('wr_1');
         var currentValue = parseInt(numberField.value);
         if (currentValue > 0) {
             numberField.value = currentValue - 1;
@@ -273,19 +281,19 @@
     });
 
     document.getElementById('increase_number_needed').addEventListener('click', function() {
-        var numberField = document.getElementById('wr_number_needed');
+        var numberField = document.getElementById('wr_1');
         numberField.value = parseInt(numberField.value) + 1;
     });
 
-    document.getElementById('wr_number_needed').addEventListener('input', function() {
-        var numberField = document.getElementById('wr_number_needed');
+    document.getElementById('wr_1').addEventListener('input', function() {
+        var numberField = document.getElementById('wr_1');
         if (numberField.value < 0) {
             numberField.value = 0;
         }
     });
 
     document.getElementById('decrease_number_total').addEventListener('click', function() {
-        var numberField = document.getElementById('wr_number_total');
+        var numberField = document.getElementById('wr_2');
         var currentValue = parseInt(numberField.value);
         if (currentValue > 0) {
             numberField.value = currentValue - 1;
@@ -293,12 +301,12 @@
     });
 
     document.getElementById('increase_number_total').addEventListener('click', function() {
-        var numberField = document.getElementById('wr_number_total');
+        var numberField = document.getElementById('wr_2');
         numberField.value = parseInt(numberField.value) + 1;
     });
 
-    document.getElementById('wr_number_total').addEventListener('input', function() {
-        var numberField = document.getElementById('wr_number_total');
+    document.getElementById('wr_2').addEventListener('input', function() {
+        var numberField = document.getElementById('wr_2');
         if (numberField.value < 0) {
             numberField.value = 0;
         }
@@ -306,7 +314,7 @@
 
     // 달력 초기화
     $(function() {
-        $("#wr_expiry").datetimepicker({
+        $("#wr_3").datetimepicker({
             dateFormat: "yy-mm-dd",
             timeFormat: "HH:mm",
             minDate: 0 // 현재 날짜 이후만 선택 가능
