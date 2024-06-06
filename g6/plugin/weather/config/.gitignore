@@ -3,3 +3,4 @@
 # .gitignore 파일 자체는 제외
 !.gitignore
 !example.keys.py
+!keys.py
