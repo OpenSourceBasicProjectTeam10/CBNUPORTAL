@@ -23,12 +23,12 @@ if(isset($_POST['post_id']) && isset($_POST['member_id'])) {
     $postId = $_POST['post_id'];
     $memberId = $_POST['member_id'];
 
-    // wr_1 값이 성공적으로 업데이트된 경우, wr_1과 wr_2 값을 가져옴
-    $sql_select = "SELECT wr_1, wr_2, wr_4 FROM g6_CBNUPORTALwrite_contest WHERE wr_id = ?";
+    // 현재 wr_1 및 wr_4 값을 가져옴
+    $sql_select = "SELECT wr_1, wr_4 FROM g6_CBNUPORTALwrite_contest WHERE wr_id = ?";
     $stmt_select = $conn->prepare($sql_select);
     $stmt_select->bind_param("i", $postId);
     $stmt_select->execute();
-    $stmt_select->bind_result($wr1, $wr2, $wr4);
+    $stmt_select->bind_result($wr1, $wr4);
     $stmt_select->fetch();
     $stmt_select->close();
 
@@ -37,27 +37,23 @@ if(isset($_POST['post_id']) && isset($_POST['member_id'])) {
     if (!$wr4Array) {
         $wr4Array = [];
     }
-    $wr4Array[$memberId] = "참가중";
-
-    // wr_1과 wr_2 비교하여 초과 여부 확인
-    if ($wr1 < $wr2) {
-        // wr_1 값이 wr_2보다 작거나 같으면 wr_1을 1 증가시킴
-        $sql_update = "UPDATE g6_CBNUPORTALwrite_contest SET wr_1 = wr_1 + 1, wr_4 = ? WHERE wr_id = ?";
-        $stmt_update = $conn->prepare($sql_update);
-        $newWr4 = json_encode($wr4Array);
-        $stmt_update->bind_param("si", $newWr4, $postId);
-        
-        if($stmt_update->execute()) {
-            echo json_encode(array('success' => true, 'wr_1' => $wr1 + 1, 'wr_2' => $wr2, 'wr_4' => $newWr4));
-        } else {
-            echo json_encode(array('success' => false, 'error' => '데이터베이스 업데이트 실패: ' . $stmt_update->error));
-        }
-        
-        $stmt_update->close();
-    } else {
-        // 인원 초과 시 경고 메시지 반환
-        echo json_encode(array('success' => false, 'error' => '인원을 초과하였습니다.'));
+    if (isset($wr4Array[$memberId])) {
+        unset($wr4Array[$memberId]);
     }
+
+    // wr_1을 1 감소시킴
+    $sql_update = "UPDATE g6_CBNUPORTALwrite_contest SET wr_1 = wr_1 - 1, wr_4 = ? WHERE wr_id = ? AND wr_1 > 0";
+    $stmt_update = $conn->prepare($sql_update);
+    $newWr4 = json_encode($wr4Array);
+    $stmt_update->bind_param("si", $newWr4, $postId);
+    
+    if($stmt_update->execute()) {
+        echo json_encode(array('success' => true, 'wr_1' => $wr1 - 1, 'wr_4' => $newWr4));
+    } else {
+        echo json_encode(array('success' => false, 'error' => '데이터베이스 업데이트 실패: ' . $stmt_update->error));
+    }
+    
+    $stmt_update->close();
 } else {
     // POST 데이터가 없는 경우
     echo json_encode(array('success' => false, 'error' => '게시글 ID나 회원 ID가 전송되지 않았습니다.'));
