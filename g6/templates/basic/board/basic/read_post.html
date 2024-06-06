@@ -221,43 +221,57 @@
         }
     </style>
 	
-<div class="join-container">
-    <div class="join-button" id="join-button" data-post-id="{{ write.wr_id }}">
-        {{ write.wr_1 }} / {{ write.wr_2 }}
-        <br>
-        참가하기
+    <div class="join-container">
+        <div class="join-button" id="join-button" data-post-id="{{ write.wr_id }}" data-wr-1="{{ write.wr_1 }}" data-wr-2="{{ write.wr_2 }}">
+            {{ write.wr_1 }} / {{ write.wr_2 }}
+            <br>
+            참가하기
+        </div>
     </div>
-</div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#join-button').click(function() {
-            var postId = $(this).data('post-id'); // 게시글 ID 가져오기
-            console.log('postId:', postId); // 콘솔에 postId 출력
-
-            $.ajax({
-                type: 'POST',
-                url: 'https://animalnara.com/increment_wr.php', // 서버 측 PHP 스크립트 경로
-                data: {
-                    post_id: postId
-                },
-                success: function(response) {
-                    console.log('response:', response); // 콘솔에 서버 응답 출력
-                    var result = JSON.parse(response);
-                    if(result.success) {
-                        alert('post_id를 성공적으로 받았습니다: ' + result.post_id);
-                    } else {
-                        alert('실패: ' + result.error);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX 요청 에러:', error);
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.join-button').click(function() {
+                var postId = $(this).data('post-id'); // 게시글 ID 가져오기
+                var wr1 = $(this).data('wr-1'); // 현재 참가 인원
+                var wr2 = $(this).data('wr-2'); // 최대 인원
+                console.log('postId:', postId); // 콘솔에 postId 출력
+    
+                // 토글 상태에 따라 버튼의 내용과 스타일 변경
+                if ($(this).attr('id') === 'join-button') {
+                    $(this).html(wr1 + ' / ' + wr2 + '<br>팀 나가기');
+                    $(this).css('background-color', 'red');
+                    $(this).attr('id', 'cancel-button');
+                } else {
+                    $(this).html(wr1 + ' / ' + wr2 + '<br>참가하기');
+                    $(this).css('background-color', '#4D57E3');
+                    $(this).attr('id', 'join-button');
                 }
+    
+                $.ajax({
+                    type: 'POST',
+                    url: 'https://animalnara.com/increment_wr.php', // 서버 측 PHP 스크립트 경로
+                    data: {
+                        post_id: postId
+                    },
+                    success: function(response) {
+                        console.log('response:', response); // 콘솔에 서버 응답 출력
+                        var result = JSON.parse(response);
+                        if(result.success) {
+                            alert('post_id를 성공적으로 받았습니다: ' + result.post_id);
+                        } else {
+                            alert('실패: ' + result.error);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX 요청 에러:', error);
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
+    
 
 
     {% if files %}
