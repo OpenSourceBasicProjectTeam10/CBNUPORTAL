@@ -141,7 +141,7 @@ class ValidateScrapService(BaseService):
         if exists_scrap:
             self.raise_exception(
                 status_code=409,
-                detail="이미 스크랩하신 글 입니다.",
+                detail="이미 참가한 팀입니다.",
                 url=self.request.url_for('scrap_list'))
 
     def is_owner_scrap(self, scrap: Scrap, member: Member) -> None:

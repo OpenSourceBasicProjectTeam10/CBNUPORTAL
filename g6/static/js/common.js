@@ -100,7 +100,7 @@ function no_comma(data)
 // 삭제 검사 확인
 function del(href)
 {
-    if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
+    if(confirm("한번 나가면 복구할 방법이 없습니다.\n\n정말 팀에서 나가시겠습니까?")) {
 
         var token = generate_token();
 
