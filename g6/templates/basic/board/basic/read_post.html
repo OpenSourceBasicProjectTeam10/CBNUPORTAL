@@ -83,20 +83,7 @@
                     <i class="fa fa-list" aria-hidden="true"></i><span class="blind">목록</span>
                 </a>
             </li>
-            {% if is_reply %}
-            <li>
-                <a href="{{ url_for('write_form_add', bo_table=board.bo_table)|set_query_params(request, parent_id=write.wr_id) }}" class="btn_b01 btn" title="답변">
-                    <i class="fa fa-reply" aria-hidden="true"></i><span class="blind">답변</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if is_write %}
-            <li>
-                <a href="{{ url_for('write_form_add', bo_table=board.bo_table)|set_query_params(request) }}" class="btn_b01 btn" title="글쓰기">
-                    <i class="fa fa-pencil" aria-hidden="true"></i><span class="blind">글쓰기</span>
-                </a>
-            </li>
-            {% endif %}
+           
             {% if is_admin or write.mb_id == login_member.mb_id or not write.mb_id %}
             <li class="buttons_more">
                 <button type="button" class="more_opener btn_b01 btn">
@@ -234,43 +221,44 @@
         }
     </style>
 	
-	<div class="join-container">
-        <div class="join-button">
-            {{ write.wr_1 }} / {{ write.wr_2 }}
-            <br>
-            참가하기
-        </div>
+<div class="join-container">
+    <div class="join-button" id="join-button" data-post-id="{{ write.wr_id }}">
+        {{ write.wr_1 }} / {{ write.wr_2 }}
+        <br>
+        참가하기
     </div>
+</div>
 
-    <script>
-        $(document).ready(function() {
-            $('#join-button').click(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/get_team_members',
-                    success: function(data) {
-                        if(data.error) {
-                            alert(data.error);
-                            return;
-                        }
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#join-button').click(function() {
+            var postId = $(this).data('post-id'); // 게시글 ID 가져오기
+            console.log('postId:', postId); // 콘솔에 postId 출력
 
-                        var teamList = $('#team-members');
-                        teamList.empty();
-
-                        data.forEach(function(member) {
-                            var listItem = $('<li>').text(member.name + ' - ' + member.phone + ' - ' + member.department);
-                            teamList.append(listItem);
-                        });
-
-                        $('#team-members-list').show();
-                    },
-                    error: function(xhr, status, error) {
-                        alert('Failed to fetch team members: ' + error);
+            $.ajax({
+                type: 'POST',
+                url: 'https://animalnara.com/increment_wr.php', // 서버 측 PHP 스크립트 경로
+                data: {
+                    post_id: postId
+                },
+                success: function(response) {
+                    console.log('response:', response); // 콘솔에 서버 응답 출력
+                    var result = JSON.parse(response);
+                    if(result.success) {
+                        alert('post_id를 성공적으로 받았습니다: ' + result.post_id);
+                    } else {
+                        alert('실패: ' + result.error);
                     }
-                });
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX 요청 에러:', error);
+                }
             });
         });
-    </script>
+    });
+</script>
+
 
     {% if files %}
     <div id="view_file" class="view_filelink">
