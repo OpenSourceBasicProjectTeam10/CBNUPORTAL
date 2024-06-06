@@ -21,7 +21,7 @@
                         <strong class="visit-num">{{ current_login_count|number_format }}</strong>
                     </a>
                 </li>
-                <li>오늘의 날씨</li> <!-- 새로운 날씨 메뉴 항목 추가 -->
+                <li>오늘의 날씨: <span id="weather">로딩 중...</span></li> <!-- 새로운 날씨 메뉴 항목 추가 -->
             </ul>
         </div>
     </div>
@@ -146,6 +146,38 @@
 
         profileImg.addEventListener("click", handleProfileClick);
         profileImg.addEventListener("focusout", handleProfileFocusout);
+
+        // Weather API
+        function fetchWeather() {
+            const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key
+            const city = 'Seoul'; // Replace with the desired city
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.cod !== 200) {
+                        throw new Error(data.message);
+                    }
+                    const temperature = data.main.temp;
+                    const description = data.weather[0].description;
+                    const weatherElement = document.getElementById('weather');
+                    weatherElement.innerHTML = `${temperature}°C, ${description}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    const weatherElement = document.getElementById('weather');
+                    weatherElement.innerHTML = '날씨 정보를 가져올 수 없습니다. (' + error.message + ')';
+                });
+        }
+
+        fetchWeather();
+
     </script>
 
 </div>
