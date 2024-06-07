@@ -135,15 +135,30 @@
     <div id="view_article">
         <h2 class="blind">본문</h2>
 
-        <div id="article_share">
-            <!-- SNS START -->
-            <!-- SNS END -->
-            {% if login_member %}
-                <a href="{{ url_for('scrap_form', bo_table=board.bo_table, wr_id=write.wr_id) }}" target="_blank" class="btn btn_b03" onclick="win_scrap(this.href); return false;">
-                    <i class="fa fa-user-plus" aria-hidden="true"></i> 팀참가
-                </a>
-            {% endif %}
-        </div>
+    <div id="article_share">
+        <!-- SNS START -->
+        <!-- SNS END -->
+        {% if login_member %}
+            <a href="{{ url_for('scrap_form', bo_table=board.bo_table, wr_id=write.wr_id) }}" 
+                target="_blank" 
+                class="btn btn_b03 team-join-btn"
+                onclick="checkTeamFull(event);">
+                <i class="fa fa-user-plus" aria-hidden="true"></i> 팀참가
+            </a>
+        {% endif %}
+    </div>
+
+        <script>
+            function checkTeamFull(event) {
+                var wr1 = parseInt("{{ write.wr_1 }}");
+                var wr2 = parseInt("{{ write.wr_2 }}");
+        
+                if (wr1 >= wr2) {
+                    event.preventDefault();
+                    alert("이미 정원이 다 찬 팀입니다.");
+                }
+            }
+        </script>
 
         <div id="article_img">
         {% for image in images %}
