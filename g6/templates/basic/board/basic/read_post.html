@@ -153,7 +153,7 @@
                 var wr1 = parseInt("{{ write.wr_1 }}");
                 var wr2 = parseInt("{{ write.wr_2 }}");
         
-                if (wr1 >= wr2) {
+                if (wr1 == wr2) {
                     event.preventDefault();
                     alert("이미 정원이 다 찬 팀입니다.");
                 }
