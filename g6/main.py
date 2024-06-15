@@ -258,7 +258,15 @@ async def catch_exceptions_middleware(request: Request, call_next):
         traceback_str = ''.join(traceback.format_tb(e.__traceback__))
         return JSONResponse(status_code=500, content={"detail": f"Unexpected error: {str(e)}", "traceback": traceback_str})
 
-# 업데이트 엔드포인트
+# Middleware 예외 처리
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+        return JSONResponse(status_code=500, content={"detail": f"Unexpected error: {str(e)}", "traceback": traceback_str})
+
 @app.post("/update_column")
 async def update_column(request: Request, db: Session = Depends(get_db)):
     try:
@@ -269,13 +277,28 @@ async def update_column(request: Request, db: Session = Depends(get_db)):
         if wr_7 is None or wr_id is None:
             return JSONResponse(status_code=400, content={"detail": "Missing 'wr_7' or 'wr_id' in request body."})
 
-        query = text("UPDATE g6_CBNUPORTALwrite_free SET wr_7 = :wr_7 WHERE wr_id = :wr_id")
-        params = {'wr_7': wr_7, 'wr_id': wr_id}
+        # 게시판 목록
+        boards = ['g6_CBNUPORTALwrite_free', 'g6_CBNUPORTALwrite_contest', 'g6_CBNUPORTALwrite_hobby', 'g6_CBNUPORTALwrite_project']
 
-        result = db.execute(query, params)
+        for board_name in boards:
+            # 각 게시판에 대해 wr_7 업데이트
+            query_update_wr7 = text(f"UPDATE {board_name} SET wr_7 = :wr_7 WHERE wr_id = :wr_id")
+            params_wr7 = {'wr_7': wr_7, 'wr_id': wr_id}
+            db.execute(query_update_wr7, params_wr7)
+
+            # 각 게시판에 대해 wr_1 업데이트
+            query_update_wr1 = text(f"UPDATE {board_name} SET wr_1 = wr_1 + 1 WHERE wr_id = :wr_id")
+            params_wr1 = {'wr_id': wr_id}
+            db.execute(query_update_wr1, params_wr1)
+
         db.commit()  # 세션에서 직접 commit 호출
 
-        return {"detail": "Update successful"}
+        # 예시로 첫 번째 게시판에서 wr_1 값 조회
+        query_get_wr1 = text(f"SELECT wr_1 FROM {boards[0]} WHERE wr_id = :wr_id")
+        params_get_wr1 = {'wr_id': wr_id}
+        current_wr1 = db.execute(query_get_wr1, params_get_wr1).fetchone()[0]
+
+        return {"detail": "Update successful", "new_wr1_value": current_wr1}
 
     except Exception as e:
         traceback_str = ''.join(traceback.format_tb(e.__traceback__))
@@ -283,21 +306,23 @@ async def update_column(request: Request, db: Session = Depends(get_db)):
 
 
 
-
-
-# get_wr_7 엔드포인트
 @app.get("/get_wr_7")
 async def get_wr_7(wr_id: int, db: Session = Depends(get_db)):
     try:
-        # 데이터베이스에서 해당 wr_id에 해당하는 게시글의 wr_7 값을 가져옵니다.
-        query = text("SELECT wr_7 FROM g6_CBNUPORTALwrite_free WHERE wr_id = :wr_id")
-        result = db.execute(query, {'wr_id': wr_id})
-        row = result.fetchone()
+        # 게시판 목록
+        boards = ['g6_CBNUPORTALwrite_free', 'g6_CBNUPORTALwrite_contest', 'g6_CBNUPORTALwrite_hobby', 'g6_CBNUPORTALwrite_project']
 
-        if row is None:
-            raise HTTPException(status_code=404, detail="게시글을 찾을 수 없습니다.")
+        for board_name in boards:
+            # 각 게시판에서 해당 wr_id에 해당하는 게시글의 wr_7 값을 가져옵니다.
+            query = text(f"SELECT wr_7 FROM {board_name} WHERE wr_id = :wr_id")
+            result = db.execute(query, {'wr_id': wr_id})
+            row = result.fetchone()
 
-        return {"wr_7": row[0]}
+            if row:
+                return {"board": board_name, "wr_7": row[0]}
+
+        # 모든 게시판에서 찾지 못한 경우
+        raise HTTPException(status_code=404, detail="게시글을 찾을 수 없습니다.")
 
     except HTTPException as he:
         raise he
