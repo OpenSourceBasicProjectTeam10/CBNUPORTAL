@@ -305,11 +305,6 @@
 
 
 
-
-
-
-
-
 <script>
     $(document).ready(function() {
         var url = "{{ request.path }}";
@@ -327,33 +322,49 @@
 
                 // Django 템플릿 변수로 wr_7을 사용하여 렌더링합니다.
                 var loginMemberNick = "{{ login_member.mb_nick }}";
-                var wrMembers = wr_7.split(',');
+                var wrMembers = wr_7.split(',').map(member => member.trim()).filter(member => member !== ''); // 공백 제거 및 빈 문자열 제외
 
-                // 로그인 멤버의 닉네임이 wr_7에 포함되어 있는지 체크하고, 해당 멤버만 표시합니다.
-                if (wrMembers.includes(loginMemberNick)) {
-                    var recruitmentInfo = wrMembers.map(member => {
-                        if (member.trim() === loginMemberNick) {
-                            return `<div style="border: 1px solid #e3e3e3">
-                                        <div style="margin:10px 0;">
-										<div>학과 {{ write.wr_4 }}</div>
-										<div>등록인 {{ write.wr_5 }}</div>
-										<div>등록인 연락처 {{ write.wr_6 }}</div>
-										</div>
-										
-										<br>
-										참여자: ${member}
-                                    </div>`;
-                        } else {
-                            return '';
-                        }
-                    }).join('');
+                // 중복 제거를 위해 Set을 사용하여 유니크한 멤버들만 필터링합니다.
+                var uniqueMembers = [...new Set(wrMembers)];
 
-                    // 모집정보가 있는 경우에만 HTML을 생성하여 #recruitment-info에 삽입합니다.
-                    if (recruitmentInfo) {
-                        $('#recruitment-info').html(recruitmentInfo);
-                    } else {
-                        $('#recruitment-info').html('<div>해당 멤버의 모집정보가 없습니다.</div>');
+                // 모집정보를 담을 변수 초기화
+                var recruitmentInfo = '';
+
+                // 학과, 등록인, 연락처는 한 번만 출력하기 위해 변수로 관리
+                var boardInfoRendered = false;
+
+                // 각 멤버의 정보를 한 번씩만 출력합니다.
+                uniqueMembers.forEach(member => {
+                    // 학과, 등록인, 연락처는 한 번만 출력합니다.
+                    if (!boardInfoRendered) {
+                        recruitmentInfo += `
+                            <div style="border: 1px solid #e3e3e3; padding: 10px; margin-bottom: 10px;">
+                                <div>학과: {{ write.wr_4 }}</div>
+                                <div>등록인: {{ write.wr_5 }}</div>
+                                <div>연락처: {{ write.wr_6 }}</div>
+                            </div>
+                        `;
+                        boardInfoRendered = true;
                     }
+                    
+                    // 각 참여자의 정보를 구분하여 추가합니다.
+                    recruitmentInfo += `
+                        <div style="border: 1px solid #e3e3e3; padding: 10px; margin-bottom: 10px;">
+                            <div>참여자: ${member}</div>
+                        </div>
+                    `;
+                });
+
+                // HTML을 생성하여 #recruitment-info에 삽입합니다.
+                if (recruitmentInfo) {
+                    $('#recruitment-info').html(`
+                        <div style="border: 1px solid #e3e3e3; padding: 10px;">
+                            모집정보:
+                            ${recruitmentInfo}
+                        </div>
+                    `);
+                } else {
+                    $('#recruitment-info').html('<div>해당 멤버의 모집정보가 없습니다.</div>');
                 }
             },
             error: function(xhr, status, error) {
@@ -368,8 +379,8 @@
 
 
 
-	
-  
+
+
 
 
     {% if files %}
