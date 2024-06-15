@@ -305,77 +305,177 @@
 
 
 
+
+
+
+
+
+
+
+
 <script>
     $(document).ready(function() {
-        var url = "{{ request.path }}";
-        var wr_id = parseInt(url.split('/').pop()); // URL에서 숫자만 추출하여 정수로 변환
+        // 페이지 로딩 시 초기 데이터를 가져오고 표시
+        initializeData();
 
-        // AJAX 요청을 통해 서버에서 wr_7 값을 가져옵니다.
-        $.ajax({
-            url: '/get_wr_7',  // 실제 서버에서 데이터를 가져오는 엔드포인트 URL
-            type: 'GET',
-            dataType: 'json',
-            data: { wr_id: wr_id },
-            success: function(response) {
-                var wr_7 = response.wr_7; // 서버에서 받은 wr_7 값
-                console.log("wr_7 값:", wr_7);
-
-                // Django 템플릿 변수로 wr_7을 사용하여 렌더링합니다.
-                var loginMemberNick = "{{ login_member.mb_nick }}";
-                var wrMembers = wr_7.split(',').map(member => member.trim()).filter(member => member !== ''); // 공백 제거 및 빈 문자열 제외
-
-                // 중복 제거를 위해 Set을 사용하여 유니크한 멤버들만 필터링합니다.
-                var uniqueMembers = [...new Set(wrMembers)];
-
-                // 모집정보를 담을 변수 초기화
-                var recruitmentInfo = '';
-
-                // 학과, 등록인, 연락처는 한 번만 출력하기 위해 변수로 관리
-                var boardInfoRendered = false;
-
-                // 각 멤버의 정보를 한 번씩만 출력합니다.
-                uniqueMembers.forEach(member => {
-                    // 학과, 등록인, 연락처는 한 번만 출력합니다.
-                    if (!boardInfoRendered) {
-                        recruitmentInfo += `
-                            <div style="border: 1px solid #e3e3e3; padding: 10px; margin-bottom: 10px;">
-                                <div>학과: {{ write.wr_4 }}</div>
-                                <div>등록인: {{ write.wr_5 }}</div>
-                                <div>연락처: {{ write.wr_6 }}</div>
-                            </div>
-                        `;
-                        boardInfoRendered = true;
-                    }
-                    
-                    // 각 참여자의 정보를 구분하여 추가합니다.
-                    recruitmentInfo += `
-                        <div style="border: 1px solid #e3e3e3; padding: 10px; margin-bottom: 10px;">
-                            <div>참여자: ${member}</div>
-                        </div>
-                    `;
-                });
-
-                // HTML을 생성하여 #recruitment-info에 삽입합니다.
-                if (recruitmentInfo) {
-                    $('#recruitment-info').html(`
-                        <div style="border: 1px solid #e3e3e3; padding: 10px;">
-                            모집정보:
-                            ${recruitmentInfo}
-                        </div>
-                    `);
-                } else {
-                    $('#recruitment-info').html('<div>해당 멤버의 모집정보가 없습니다.</div>');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('데이터 조회 실패:', status, error);
-                alert('데이터 조회 실패: ' + error);
-            }
+        // 사용자가 데이터를 업데이트하는 액션에 대한 이벤트 핸들러 설정
+        $('#update-data-btn').click(function() {
+            sendDataToServer();
         });
     });
+
+    async function initializeData() {
+        const currentUrl = window.location.href;
+        const wrId = currentUrl.split('/').pop(); // 현재 페이지 URL에서 wr_id 추출
+        const mbNick = "{{ request.state.login_member.mb_nick }}"; // 클라이언트 측에서 이미 가져온 mb_nick 값
+
+        try {
+            // 서버에서 현재 wr_7 값을 가져오기
+            const response = await fetch(`http://localhost:8000/get_wr_7?wr_id=${wrId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.wr_7) {
+                    // 현재 사용자가 참여한 상태인지 확인
+                    const isParticipant = result.wr_7.split(',').map(member => member.trim()).includes(mbNick);
+
+                    if (isParticipant) {
+                        displayRecruitmentInfo(result.wr_7);
+                    } else {
+                        $('#recruitment-info').html('<div>해당 게시글에 참여하지 않았습니다.</div>');
+                    }
+                } else {
+                    $('#recruitment-info').html('<div></div>');
+                }
+            } else {
+                console.error("wr_7 조회 오류:", response.statusText);
+                $('#recruitment-info').html('<div>데이터 조회 실패: ' + response.statusText + '</div>');
+            }
+        } catch (error) {
+            console.error("데이터 전송 실패:", error);
+            alert("데이터 전송 실패: " + error.message);
+        }
+    }
+
+
+
+
+    async function sendDataToServer() {
+        const currentUrl = window.location.href;
+        const wrId = currentUrl.split('/').pop(); // 현재 페이지 URL에서 wr_id 추출
+        const mbNick = "{{ request.state.login_member.mb_nick }}"; // 클라이언트 측에서 이미 가져온 mb_nick 값
+
+        try {
+            // 서버에서 현재 wr_7 값을 가져오기
+            const response = await fetch(`http://localhost:8000/get_wr_7?wr_id=${wrId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                let wr7Array = result.wr_7 ? result.wr_7.split(',').map(member => member.trim()) : [];
+
+                // 이미 참여 중인지 확인 후 추가
+                if (!wr7Array.includes(mbNick)) {
+                    wr7Array.push(mbNick);
+                }
+
+                // 서버에 업데이트된 wr_7 값을 전송
+                const updateResponse = await fetch("http://localhost:8000/update_column", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ wr_id: parseInt(wrId), wr_7: wr7Array.join(',') }) // 배열을 다시 문자열로 변환하여 전송
+                });
+
+                if (updateResponse.ok) {
+                    const updateResult = await updateResponse.json();
+                    console.log("데이터 업데이트 성공:", updateResult);
+
+                    // 업데이트된 데이터를 다시 서버에서 가져와서 화면에 표시
+                    const refreshResponse = await fetch(`http://localhost:8000/get_wr_7?wr_id=${wrId}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (refreshResponse.ok) {
+                        const refreshedData = await refreshResponse.json();
+                        if (refreshedData.wr_7) {
+                            displayRecruitmentInfo(refreshedData.wr_7);
+                        } else {
+                            $('#recruitment-info').html('<div></div>');
+                        }
+                    } else {
+                        console.error("데이터 조회 실패:", refreshResponse.statusText);
+                        alert("데이터 조회 실패: " + refreshResponse.statusText);
+                    }
+                } else {
+                    const errorData = await updateResponse.json();
+                    console.error("데이터 전송 오류:", errorData);
+                    alert("데이터 전송 오류: " + JSON.stringify(errorData));
+                }
+            } else {
+                console.error("wr_7 조회 오류:", response.statusText);
+                $('#recruitment-info').html('<div>데이터 조회 실패: ' + response.statusText + '</div>');
+            }
+        } catch (error) {
+            console.error("데이터 전송 실패:", error);
+            alert("데이터 전송 실패: " + error.message);
+        }
+    }
+
+
+
+
+    function displayRecruitmentInfo(wr7String) {
+        const wrMembers = wr7String.split(',').map(member => member.trim()).filter(member => member !== '');
+
+        // 모집 정보를 HTML로 구성합니다.
+        let recruitmentInfo = '';
+        wrMembers.forEach(member => {
+            recruitmentInfo += `
+                <div style="border: 1px solid #e3e3e3; padding: 10px; margin-bottom: 10px;">
+                    <div>참여자: ${member}</div>
+                </div>
+            `;
+        });
+
+        // #recruitment-info 요소에 모집 정보를 삽입합니다.
+        $('#recruitment-info').html(`
+            <div style="border: 1px solid #e3e3e3; padding: 10px;">
+                모집정보:
+					<div style="border: 1px solid #e3e3e3; padding: 10px; margin-bottom:10px;">
+						<!--글쓴이정보-->
+						<div> 학과 : {{ write.wr_4 }}</div>
+						<div> 이름 : {{ write.wr_5 }}</div>
+						<div> 연락처 : {{ write.wr_6 }}</div>
+					</div>
+                ${recruitmentInfo}
+            </div>
+        `);
+    }
 </script>
 
 <div id="recruitment-info"></div>
+
+
+
+
+
+
+
+
 
 
 

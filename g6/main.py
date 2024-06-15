@@ -278,7 +278,7 @@ async def update_column(request: Request, db: Session = Depends(get_db)):
             return JSONResponse(status_code=400, content={"detail": "Missing 'wr_7' or 'wr_id' in request body."})
 
         # 게시판 목록
-        boards = ['g6_CBNUPORTALwrite_free', 'g6_CBNUPORTALwrite_contest', 'g6_CBNUPORTALwrite_hobby', 'g6_CBNUPORTALwrite_project']
+        boards = ['g6_CBNUPORTALwrite_contest', 'g6_CBNUPORTALwrite_free', 'g6_CBNUPORTALwrite_hobby', 'g6_CBNUPORTALwrite_project']
 
         for board_name in boards:
             # 각 게시판에 대해 wr_7 업데이트
@@ -310,7 +310,7 @@ async def update_column(request: Request, db: Session = Depends(get_db)):
 async def get_wr_7(wr_id: int, db: Session = Depends(get_db)):
     try:
         # 게시판 목록
-        boards = ['g6_CBNUPORTALwrite_free', 'g6_CBNUPORTALwrite_contest', 'g6_CBNUPORTALwrite_hobby', 'g6_CBNUPORTALwrite_project']
+        boards = ['g6_CBNUPORTALwrite_contest', 'g6_CBNUPORTALwrite_free', 'g6_CBNUPORTALwrite_hobby', 'g6_CBNUPORTALwrite_project']
 
         for board_name in boards:
             # 각 게시판에서 해당 wr_id에 해당하는 게시글의 wr_7 값을 가져옵니다.

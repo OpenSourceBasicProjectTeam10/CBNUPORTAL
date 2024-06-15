@@ -119,19 +119,12 @@
                     <th scope="col">제목</th>
 					
 					
-					
 
-				
-					
-					<?php
-					$Site_URL = $_SERVER['REQUEST_URI']; // 현재 페이지의 주소를 가져옴
-					?>
-										
-					<?php if ($Site_URL !== "/board/free" && $Site_URL !== "/board/hobby") { ?>
-						<th scope="col" style="width:30px;">학과</th>
-						<th scope="col" style="width:30px;">인원</th>
-						<th scope="col" style="width:80px;"><a href="{{ request.url.include_query_params(sst="wr_3", sod=sod_reverse) }}">마감일</a></th>
-					<?php }?>
+					<th scope="col" style="width:30px;">학과</th>
+					<th scope="col" style="width:30px;">인원</th>
+					<th scope="col" style="width:80px;">
+					<a href="{{ request.url.include_query_params(sst="wr_3", sod=sod_reverse) }}">마감일</a></th>
+
 					
 					
                     <th scope="col" style="width:30px;"><a href="{{ request.url.include_query_params(sst="wr_hit", sod=sod_reverse) }}">조회</a></th>
@@ -298,7 +291,7 @@
 					
 					
 					<!--학과-->
-					<td class="table_writer">{{ write.mb_1 }}</td>
+					<td class="table_writer">{{ write.wr_4 }}</td>
 					
 					<!--인원-->
 					<td class="table_datetime">{{ write.wr_1 }} / {{ write.wr_2 }}</td>
