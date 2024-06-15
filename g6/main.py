@@ -10,6 +10,8 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import ProgrammingError
 from starlette.staticfiles import StaticFiles
 
+from sqlalchemy import create_engine, text  # text 함수를 import 해줍니다.
+
 from core import models
 from core.database import DBConnect
 from core.exception import AlertException, regist_core_exception_handler, template_response
@@ -22,6 +24,10 @@ from core.plugin import (
 from core.routers import router as template_router
 from core.settings import ENV_PATH, settings
 from core.template import register_theme_statics
+from core.database import get_db
+from sqlalchemy.orm import Session  # Import Session from SQLAlchemy's ORM module
+import traceback
+
 from lib.common import (
     get_client_ip, is_intercept_ip, is_possible_ip, session_member_key
 )
@@ -38,6 +44,10 @@ from install.router import router as install_router
 from bbs.login import router as login_router
 
 from api.v1.routers import router as api_router
+
+
+
+
 
 # .env 파일로부터 환경 변수를 로드합니다.
 # 이 함수는 해당 파일 내의 키-값 쌍을 환경 변수로 로드하는 데 사용됩니다.
@@ -229,6 +239,75 @@ regist_core_exception_handler(app)
 
 # 스케줄러 등록 및 실행
 scheduler.run_scheduler()
+
+
+
+
+
+
+
+
+
+
+# Middleware 예외 처리
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+        return JSONResponse(status_code=500, content={"detail": f"Unexpected error: {str(e)}", "traceback": traceback_str})
+
+# 업데이트 엔드포인트
+@app.post("/update_column")
+async def update_column(request: Request, db: Session = Depends(get_db)):
+    try:
+        body = await request.json()
+        wr_id = body.get("wr_id")
+        wr_7 = body.get("wr_7")
+
+        if wr_7 is None or wr_id is None:
+            return JSONResponse(status_code=400, content={"detail": "Missing 'wr_7' or 'wr_id' in request body."})
+
+        query = text("UPDATE g6_CBNUPORTALwrite_free SET wr_7 = :wr_7 WHERE wr_id = :wr_id")
+        params = {'wr_7': wr_7, 'wr_id': wr_id}
+
+        result = db.execute(query, params)
+        db.commit()  # 세션에서 직접 commit 호출
+
+        return {"detail": "Update successful"}
+
+    except Exception as e:
+        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+        return JSONResponse(status_code=500, content={"detail": f"Unexpected error: {str(e)}", "traceback": traceback_str})
+
+
+
+
+
+# get_wr_7 엔드포인트 추가
+@app.get("/get_wr_7")
+async def get_wr_7(db: Session = Depends(get_db)):
+    try:
+        # 예시로 데이터베이스에서 모든 wr_7 값을 가져오는 쿼리를 실행합니다.
+        query = text("SELECT wr_7 FROM g6_CBNUPORTALwrite_free")
+        result = db.execute(query)
+        wr_7_values = [row[0] for row in result.fetchall()]  # 모든 결과를 리스트로 가져옵니다.
+
+        return {"wr_7": ','.join(wr_7_values)}  # 쉼표로 구분된 문자열로 반환합니다.
+
+    except Exception as e:
+        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+        return JSONResponse(status_code=500, content={"detail": f"Unexpected error: {str(e)}", "traceback": traceback_str})
+
+
+
+
+
+
+		
+		
+
 
 
 @app.post("/generate_token",

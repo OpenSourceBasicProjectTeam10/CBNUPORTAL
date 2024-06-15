@@ -131,6 +131,72 @@
         </script>
 
     </div>
+	
+	
+	
+	
+	
+	<!--
+    <button onclick="sendDataToServer()" type="button">Send Data</button>
+	-->
+
+    <script>
+    async function sendDataToServer() {
+    const currentUrl = window.location.href;
+    const wrId = currentUrl.split('/').pop(); // 현재 페이지 URL에서 wr_id 추출
+    const mbNick = "{{ request.state.login_member.mb_nick }}"; // 클라이언트 측에서 이미 가져온 mb_nick 값
+
+    try {
+        // 서버에서 현재 wr_7 값을 가져오기
+        const response = await fetch("http://localhost:8000/get_wr_7", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        let wr7Array = []; // 기존 wr_7 값을 담을 배열 초기화
+
+        if (response.ok) {
+            const result = await response.json();
+            if (result.wr_7) {
+                wr7Array = result.wr_7.split(','); // 기존 데이터를 배열로 변환
+            }
+        } else {
+            console.error("wr_7 조회 오류:", response.statusText);
+        }
+
+        // 새로운 mbNick을 wr_7 배열에 추가
+        wr7Array.push(mbNick);
+
+        // 서버에 업데이트된 wr_7 값을 전송
+        const updateResponse = await fetch("http://localhost:8000/update_column", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ wr_id: parseInt(wrId), wr_7: wr7Array.join(',') }) // 배열을 다시 문자열로 변환하여 전송
+        });
+
+        if (updateResponse.ok) {
+            const updateResult = await updateResponse.json();
+            //alert("데이터 전송 성공: " + JSON.stringify(updateResult));
+        } else {
+            const errorData = await updateResponse.json();
+            console.error("데이터 전송 오류:", errorData);
+            alert("데이터 전송 오류: " + JSON.stringify(errorData));
+        }
+    } catch (error) {
+        console.error("데이터 전송 실패:", error);
+        alert("데이터 전송 실패: " + error.message);
+    }
+}
+
+    </script>
+
+
+	
+	
 
     <div id="view_article">
         <h2 class="blind">본문</h2>
@@ -139,7 +205,7 @@
         <!-- SNS START -->
         <!-- SNS END -->
         {% if login_member %}
-            <a href="{{ url_for('scrap_form', bo_table=board.bo_table, wr_id=write.wr_id) }}" 
+            <a onclick="sendDataToServer()" href="{{ url_for('scrap_form', bo_table=board.bo_table, wr_id=write.wr_id) }}" 
                 target="_blank" 
                 class="team-join-btn"
                 onclick="checkTeamFull(event);">
@@ -234,6 +300,74 @@
         }
     </style>
     
+	
+
+
+
+
+
+
+
+
+
+<script>
+    $(document).ready(function() {
+        var url = "{{ request.path }}";
+        var wr_id = parseInt(url.split('/').pop()); // URL에서 숫자만 추출하여 정수로 변환
+
+        // AJAX 요청을 통해 서버에서 wr_7 값을 가져옵니다.
+        $.ajax({
+            url: '/get_wr_7',  // 실제 서버에서 데이터를 가져오는 엔드포인트 URL
+            type: 'GET',
+            dataType: 'json',
+            data: { wr_id: wr_id },
+            success: function(response) {
+                var wr_7 = response.wr_7; // 서버에서 받은 wr_7 값
+                console.log("wr_7 값:", wr_7);
+
+                // Django 템플릿 변수로 wr_7을 사용하여 렌더링합니다.
+                var loginMemberNick = "{{ login_member.mb_nick }}";
+                var wrMembers = wr_7.split(',');
+
+                // 로그인 멤버의 닉네임이 wr_7에 포함되어 있는지 체크하고, 해당 멤버만 표시합니다.
+                if (wrMembers.includes(loginMemberNick)) {
+                    var recruitmentInfo = wrMembers.map(member => {
+                        if (member.trim() === loginMemberNick) {
+                            return `<div style="border: 1px solid #e3e3e3">
+                                        <div style="margin:10px 0;">
+										<div>학과 {{ write.wr_4 }}</div>
+										<div>등록인 {{ write.wr_5 }}</div>
+										<div>등록인 연락처 {{ write.wr_6 }}</div>
+										</div>
+										
+										<br>
+										참여자: ${member}
+                                    </div>`;
+                        } else {
+                            return '';
+                        }
+                    }).join('');
+
+                    // 모집정보가 있는 경우에만 HTML을 생성하여 #recruitment-info에 삽입합니다.
+                    if (recruitmentInfo) {
+                        $('#recruitment-info').html(recruitmentInfo);
+                    } else {
+                        $('#recruitment-info').html('<div>해당 멤버의 모집정보가 없습니다.</div>');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('데이터 조회 실패:', status, error);
+                alert('데이터 조회 실패: ' + error);
+            }
+        });
+    });
+</script>
+
+<div id="recruitment-info"></div>
+
+
+
 	
   
 
