@@ -285,20 +285,25 @@ async def update_column(request: Request, db: Session = Depends(get_db)):
 
 
 
-# get_wr_7 엔드포인트 추가
+# get_wr_7 엔드포인트
 @app.get("/get_wr_7")
-async def get_wr_7(db: Session = Depends(get_db)):
+async def get_wr_7(wr_id: int, db: Session = Depends(get_db)):
     try:
-        # 예시로 데이터베이스에서 모든 wr_7 값을 가져오는 쿼리를 실행합니다.
-        query = text("SELECT wr_7 FROM g6_CBNUPORTALwrite_free")
-        result = db.execute(query)
-        wr_7_values = [row[0] for row in result.fetchall()]  # 모든 결과를 리스트로 가져옵니다.
+        # 데이터베이스에서 해당 wr_id에 해당하는 게시글의 wr_7 값을 가져옵니다.
+        query = text("SELECT wr_7 FROM g6_CBNUPORTALwrite_free WHERE wr_id = :wr_id")
+        result = db.execute(query, {'wr_id': wr_id})
+        row = result.fetchone()
 
-        return {"wr_7": ','.join(wr_7_values)}  # 쉼표로 구분된 문자열로 반환합니다.
+        if row is None:
+            raise HTTPException(status_code=404, detail="게시글을 찾을 수 없습니다.")
 
+        return {"wr_7": row[0]}
+
+    except HTTPException as he:
+        raise he
     except Exception as e:
         traceback_str = ''.join(traceback.format_tb(e.__traceback__))
-        return JSONResponse(status_code=500, content={"detail": f"Unexpected error: {str(e)}", "traceback": traceback_str})
+        return {"detail": f"오류 발생: {str(e)}", "traceback": traceback_str}
 
 
 
